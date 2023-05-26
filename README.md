@@ -1,72 +1,64 @@
-# C++ target for ANTLR 4
+# ANTLR v4
 
-This folder contains the C++ runtime support for ANTLR.  See [the canonical antlr4 repository](https://github.com/antlr/antlr4) for in depth detail about how to use ANTLR 4.
+[![Java 7+](https://img.shields.io/badge/java-7+-4c7e9f.svg)](http://java.oracle.com)
+[![License](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/antlr/antlr4/master/LICENSE.txt)
+
+**Build status**
+
+[![Github CI Build Status (MacOSX)](https://img.shields.io/github/workflow/status/antlr/antlr4/MacOSX?label=MacOSX)](https://github.com/antlr/antlr4/actions) 
+[![AppVeyor CI Build Status (Windows)](https://img.shields.io/appveyor/build/parrt/antlr4?label=Windows)](https://ci.appveyor.com/project/parrt/antlr4) 
+[![Circle CI Build Status (Linux)](https://img.shields.io/circleci/build/gh/antlr/antlr4/master?label=Linux)](https://app.circleci.com/pipelines/github/antlr/antlr4)
+[![Travis-CI Build Status (Swift-Linux)](https://img.shields.io/travis/antlr/antlr4.svg?label=Linux-Swift&branch=master)](https://travis-ci.com/github/antlr/antlr4)
+
+**ANTLR** (ANother Tool for Language Recognition) is a powerful parser generator for reading, processing, executing, or translating structured text or binary files. It's widely used to build languages, tools, and frameworks. From a grammar, ANTLR generates a parser that can build parse trees and also generates a listener interface (or visitor) that makes it easy to respond to the recognition of phrases of interest.
+
+*Given day-job constraints, my time working on this project is limited so I'll have to focus first on fixing bugs rather than changing/improving the feature set. Likely I'll do it in bursts every few months. Please do not be offended if your bug or pull request does not yield a response! --parrt*
+
+[![Donate](https://www.paypal.com/en_US/i/btn/x-click-butcc-donate.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BF92STRXT8F8Q)
 
 ## Authors and major contributors
 
-ANTLR 4 is the result of substantial effort of the following people:
-
 * [Terence Parr](http://www.cs.usfca.edu/~parrt/), parrt@cs.usfca.edu
-  ANTLR project lead and supreme dictator for life
-  [University of San Francisco](http://www.usfca.edu/)
-* [Sam Harwell](http://tunnelvisionlabs.com/)
-  Tool co-author, Java and C# target)
+ANTLR project lead and supreme dictator for life
+[University of San Francisco](http://www.usfca.edu/)
+* [Sam Harwell](http://tunnelvisionlabs.com/) (Tool co-author, Java and original C# target)
+* [Eric Vergnaud](https://github.com/ericvergnaud) (Javascript, Python2, Python3 targets and maintenance of C# target)
+* [Peter Boyer](https://github.com/pboyer) (Go target)
+* [Mike Lischke](http://www.soft-gems.net/) (C++ completed target)
+* Dan McLaughlin (C++ initial target)
+* David Sisson (C++ initial target and test)
+* [Janyou](https://github.com/janyou) (Swift target)
+* [Ewan Mellor](https://github.com/ewanmellor), [Hanzhou Shi](https://github.com/hanjoes) (Swift target merging)
+* [Ben Hamilton](https://github.com/bhamiltoncx) (Full Unicode support in serialized ATN and all languages' runtimes for code points > U+FFFF)
+* [Marcos Passos](https://github.com/marcospassos) (PHP target)
+* [Lingyu Li](https://github.com/lingyv-li) (Dart target)
 
-The C++ target has been the work of the following people:
+## Useful information
 
-* Dan McLaughlin, dan.mclaughlin@gmail.com (initial port, got code to compile)
-* David Sisson, dsisson@google.com (initial port, made the runtime C++ tests runnable)
-* [Mike Lischke](http://www.soft-gems.net), mike@lischke-online.de (brought the initial port to a working library, made most runtime tests passing)
+* [Release notes](https://github.com/antlr/antlr4/releases)
+* [Getting started with v4](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md)
+* [Official site](http://www.antlr.org/)
+* [Documentation](https://github.com/antlr/antlr4/blob/master/doc/index.md)
+* [FAQ](https://github.com/antlr/antlr4/blob/master/doc/faq/index.md)
+* [ANTLR code generation targets](https://github.com/antlr/antlr4/blob/master/doc/targets.md)<br>(Currently: Java, C#, Python2|3, JavaScript, Go, C++, Swift, Dart, PHP)
+* [Java API](http://www.antlr.org/api/Java/index.html)
+* [ANTLR v3](http://www.antlr3.org/)
+* [v3 to v4 Migration, differences](https://github.com/antlr/antlr4/blob/master/doc/faq/general.md)
 
-## Other contributors
+You might also find the following pages useful, particularly if you want to mess around with the various target languages.
+ 
+* [How to build ANTLR itself](https://github.com/antlr/antlr4/blob/master/doc/building-antlr.md)
+* [How we create and deploy an ANTLR release](https://github.com/antlr/antlr4/blob/master/doc/releasing-antlr.md)
 
-* Marcin Szalowicz, mszalowicz@mailplus.pl (cmake build setup)
-* Tim O'Callaghan, timo@linux.com (additional superbuild cmake pattern script)
+## The Definitive ANTLR 4 Reference
 
-## Project Status
+Programmers run into parsing problems all the time. Whether it’s a data format like JSON, a network protocol like SMTP, a server configuration file for Apache, a PostScript/PDF file, or a simple spreadsheet macro language—ANTLR v4 and this book will demystify the process. ANTLR v4 has been rewritten from scratch to make it easier than ever to build parsers and the language applications built on top. This completely rewritten new edition of the bestselling Definitive ANTLR Reference shows you how to take advantage of these new features.
 
-* Building on macOS, Windows, Android and Linux
-* No errors and warnings
-* Library linking
-* Some unit tests in the macOS project, for important base classes with almost 100% code coverage.
-* All memory allocations checked
-* Simple command line demo application working on all supported platforms.
-* All runtime tests pass.
+You can buy the book [The Definitive ANTLR 4 Reference](http://amzn.com/1934356999) at amazon or an [electronic version at the publisher's site](https://pragprog.com/book/tpantlr2/the-definitive-antlr-4-reference).
 
-### Build + Usage Notes
+You will find the [Book source code](http://pragprog.com/titles/tpantlr2/source_code) useful.
 
-The minimum C++ version to compile the ANTLR C++ runtime with is C++17. The supplied projects can built the runtime either as static or dynamic library, as both 32bit and 64bit arch. The macOS project contains a target for iOS and can also be built using cmake (instead of XCode).
-
-Include the antlr4-runtime.h umbrella header in your target application to get everything needed to use the library.
-
-If you are compiling with cmake, the minimum version required is cmake 2.8.
-By default, the libraries produced by the CMake build target C++17. If you want to target a different C++ standard, you can explicitly pass the standard - e.g. `-DCMAKE_CXX_STANDARD=17`.
-
-#### Compiling on Windows with Visual Studio using he Visual Studio projects
-Simply open the VS project from the runtime folder (VS 2019+) and build it.
-
-#### Compiling on Windows using cmake with Visual Studio VS2019 and later
-Use the "Open Folder" Feature from the File->Open->Folder menu to open the runtime/Cpp directory.
-It will automatically use the CMake description to open up a Visual Studio Solution.
-
-#### Compiling on macOS
-Either open the included XCode project and build that or use the cmake compilation as described for linux.
-
-#### Compiling on Android
-Try run cmake -DCMAKE_ANDROID_NDK=/folder/of/android_ndkr17_and_above -DCMAKE_SYSTEM_NAME=Android -DCMAKE_ANDROID_API=14 -DCMAKE_ANDROID_ARCH_ABI=x86 -DCMAKE_ANDROID_STL_TYPE=c++_shared -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang -DCMAKE_BUILD_TYPE=Release /folder/antlr4_src_dir -G Ninja.
-
-#### Compiling on Linux
-- cd \<antlr4-dir\>/runtime/Cpp (this is where this readme is located)
-- mkdir build && mkdir run && cd build
-- cmake .. -DANTLR_JAR_LOCATION=full/path/to/antlr4-4.5.4-SNAPSHOT.jar -DWITH_DEMO=True
-- make
-- DESTDIR=\<antlr4-dir\>/runtime/Cpp/run make install
-
-If you don't want to build the demo then replace the "cmake .. -DANTLR_JAR_LOCATION<...>" command in the above recipe with "cmake .." without any further parameters.
-There is another cmake script available in the subfolder cmake/ for those who prefer the superbuild cmake pattern.
-
-#### CMake Package support
-If the CMake variable 'ANTLR4_INSTALL' is set, CMake Packages will be build and installed during the install step.
-They expose two packages: antlr4_runtime and antlr4_generator which can be referenced to ease up the use of the
-ANTLR Generator and runtime.
-Use and Sample can be found [here](cmake/Antlr4Package.md)
+## Additional grammars
+[This repository](https://github.com/antlr/grammars-v4) is a collection of grammars without actions where the
+root directory name is the all-lowercase name of the language parsed
+by the grammar. For example, java, cpp, csharp, c, etc...

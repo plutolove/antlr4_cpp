@@ -6,15 +6,13 @@
 
 package org.antlr.v4.test.tool;
 
-import org.antlr.v4.test.runtime.states.ExecutedState;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import java.nio.file.Path;
-
-import static org.antlr.v4.test.tool.ToolTestUtils.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /** Test parser execution.
  *
@@ -47,12 +45,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *  Nongreedy loops match as much input as possible while still allowing
  *  the remaining input to match.
  */
-public class TestParserExec {
+public class TestParserExec extends BaseJavaToolTest {
+	@Before
+	@Override
+	public void testSetUp() throws Exception {
+		super.testSetUp();
+	}
+
 	/**
 	 * This is a regression test for antlr/antlr4#118.
 	 * https://github.com/antlr/antlr4/issues/118
 	 */
-	@Disabled("Performance impact of passing this test may not be worthwhile")
+	@Ignore("Performance impact of passing this test may not be worthwhile")
 	// TODO: port to test framework (not ported because test currently fails)
 	@Test public void testStartRuleWithoutEOF() {
 		String grammar =
@@ -62,15 +66,16 @@ public class TestParserExec {
 			"ID : 'a'..'z'+ ;\n"+
 			"INT : '0'..'9'+ ;\n"+
 			"WS : (' '|'\\t'|'\\n')+ -> skip ;\n";
-		ExecutedState executedState = execParser("T.g4", grammar, "TParser", "TLexer",
-				"s", "abc 34", true);
+		String result = execParser("T.g4", grammar, "TParser", "TLexer",
+		                           null, null, "s",
+								   "abc 34", true);
 		String expecting =
 			"Decision 0:\n" +
 			"s0-ID->s1\n" +
 			"s1-INT->s2\n" +
 			"s2-EOF->:s3=>1\n"; // Must point at accept state
-		assertEquals(expecting, executedState.output);
-		assertEquals("", executedState.errors);
+		assertEquals(expecting, result);
+		assertNull(getParseErrors());
 	}
 
 	/**
@@ -80,11 +85,10 @@ public class TestParserExec {
 	 */
 	// TODO: port to test framework (can we simplify the Psl grammar?)
 	@Test public void testFailedPredicateExceptionState() throws Exception {
-		String grammar = load("Psl.g4");
-		ExecutedState executedState = execParser("Psl.g4", grammar,
-				"PslParser", "PslLexer", "floating_constant", " . 234", false);
-		assertEquals("", executedState.output);
-		assertEquals("line 1:6 rule floating_constant DEC:A floating-point constant cannot have internal white space\n", executedState.errors);
+		String grammar = load("Psl.g4", "UTF-8");
+		String found = execParser("Psl.g4", grammar, "PslParser", "PslLexer", null, null, "floating_constant", " . 234", false);
+		assertEquals(null, found);
+		assertEquals("line 1:6 rule floating_constant DEC:A floating-point constant cannot have internal white space\n", getParseErrors());
 	}
 
 	/**
@@ -93,7 +97,7 @@ public class TestParserExec {
 	 * https://github.com/antlr/antlr4/issues/563
 	 */
 	// TODO: port to test framework (missing templates)
-	@Test public void testAlternateQuotes(@TempDir Path tempDir) {
+	@Test public void testAlternateQuotes() throws Exception {
 		String lexerGrammar =
 			"lexer grammar ModeTagsLexer;\n" +
 			"\n" +
@@ -116,14 +120,16 @@ public class TestParserExec {
 			"    | '«' '/' ID '»'\n" +
 			"    ;";
 
-		execLexer("ModeTagsLexer.g4", lexerGrammar, "ModeTagsLexer", "",
-				tempDir, true);
-		ExecutedState executedState = execParser("ModeTagsParser.g4", parserGrammar,
-				"ModeTagsParser", "ModeTagsLexer",
-				"file", "", false,
-				tempDir);
-		assertEquals("", executedState.output);
-		assertEquals("", executedState.errors);
+		boolean success = rawGenerateAndBuildRecognizer("ModeTagsLexer.g4",
+														lexerGrammar,
+														null,
+														"ModeTagsLexer");
+		assertTrue(success);
+
+		String found = execParser("ModeTagsParser.g4", parserGrammar, "ModeTagsParser", "ModeTagsLexer",
+		                          null, null, "file", "", false);
+		assertEquals(null, found);
+		assertNull(getParseErrors());
 	}
 
 	/**
@@ -132,13 +138,13 @@ public class TestParserExec {
 	 * https://github.com/antlr/antlr4/issues/672
 	 */
 	// TODO: port to test framework (missing templates)
-	@Test public void testAttributeValueInitialization() {
+	@Test public void testAttributeValueInitialization() throws Exception {
 		String grammar =
 			"grammar Data; \n" +
 			"\n" +
 			"file : group+ EOF; \n" +
 			"\n" +
-			"group: INT sequence {outStream.println($sequence.values.size());} ; \n" +
+			"group: INT sequence {System.out.println($sequence.values.size());} ; \n" +
 			"\n" +
 			"sequence returns [List<Integer> values = new ArrayList<Integer>()] \n" +
 			"  locals[List<Integer> localValues = new ArrayList<Integer>()]\n" +
@@ -149,31 +155,9 @@ public class TestParserExec {
 			"WS : [ \\t\\n\\r]+ -> skip ; // toss out all whitespace\n";
 
 		String input = "2 9 10 3 1 2 3";
-		ExecutedState executedState = execParser("Data.g4", grammar,
-				"DataParser", "DataLexer", "file", input, false);
-		assertEquals("6\n", executedState.output);
-		assertEquals("", executedState.errors);
-	}
-
-	@Test public void testCaseInsensitiveInCombinedGrammar() throws Exception {
-		String grammar =
-				"grammar CaseInsensitiveGrammar;\n" +
-				"options { caseInsensitive = true; }\n" +
-				"e\n" +
-				"    : ID\n" +
-				"    | 'not' e\n" +
-				"    | e 'and' e\n" +
-				"    | 'new' ID '(' e ')'\n" +
-				"    ;\n" +
-				"ID: [a-z_][a-z_0-9]*;\n" +
-				"WS: [ \\t\\n\\r]+ -> skip;";
-
-		String input = "NEW Abc (Not a AND not B)";
-		ExecutedState executedState = execParser(
-				"CaseInsensitiveGrammar.g4", grammar,
-				"CaseInsensitiveGrammarParser", "CaseInsensitiveGrammarLexer",
-				"e", input, false);
-		assertEquals("", executedState.output);
-		assertEquals("", executedState.errors);
+		String found = execParser("Data.g4", grammar, "DataParser", "DataLexer",
+		                          null, null, "file", input, false);
+		assertEquals("6\n", found);
+		assertNull(getParseErrors());
 	}
 }

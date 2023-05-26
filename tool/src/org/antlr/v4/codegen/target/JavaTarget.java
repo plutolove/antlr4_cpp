@@ -6,20 +6,27 @@
 
 package org.antlr.v4.codegen.target;
 
+import org.antlr.v4.Tool;
 import org.antlr.v4.codegen.CodeGenerator;
 import org.antlr.v4.codegen.Target;
+import org.antlr.v4.codegen.UnicodeEscapes;
+import org.antlr.v4.tool.ast.GrammarAST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.StringRenderer;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 
 public class JavaTarget extends Target {
+
 	/**
 	 * The Java target can cache the code generation templates.
 	 */
 	private static final ThreadLocal<STGroup> targetTemplates = new ThreadLocal<STGroup>();
 
-	protected static final HashSet<String> reservedWords = new HashSet<>(Arrays.asList(
+	protected static final String[] javaKeywords = {
 		"abstract", "assert", "boolean", "break", "byte", "case", "catch",
 		"char", "class", "const", "continue", "default", "do", "double", "else",
 		"enum", "extends", "false", "final", "finally", "float", "for", "goto",
@@ -27,19 +34,33 @@ public class JavaTarget extends Target {
 		"long", "native", "new", "null", "package", "private", "protected",
 		"public", "return", "short", "static", "strictfp", "super", "switch",
 		"synchronized", "this", "throw", "throws", "transient", "true", "try",
-		"void", "volatile", "while",
+		"void", "volatile", "while"
+	};
 
-		// misc
-		"rule", "parserRule"
-	));
+	/** Avoid grammar symbols in this set to prevent conflicts in gen'd code. */
+	protected final Set<String> badWords = new HashSet<String>();
 
 	public JavaTarget(CodeGenerator gen) {
-		super(gen);
+		super(gen, "Java");
 	}
 
-	@Override
-    public Set<String> getReservedWords() {
-		return reservedWords;
+    @Override
+    public String getVersion() {
+        return Tool.VERSION; // Java and tool versions move in lock step
+    }
+
+    public Set<String> getBadWords() {
+		if (badWords.isEmpty()) {
+			addBadWords();
+		}
+
+		return badWords;
+	}
+
+	protected void addBadWords() {
+		badWords.addAll(Arrays.asList(javaKeywords));
+		badWords.add("rule");
+		badWords.add("parserRule");
 	}
 
 	@Override
@@ -50,7 +71,38 @@ public class JavaTarget extends Target {
 	}
 
 	@Override
-	public boolean isATNSerializedAsInts() {
-		return false;
+	protected boolean visibleGrammarSymbolCausesIssueInGeneratedCode(GrammarAST idNode) {
+		return getBadWords().contains(idNode.getText());
+	}
+
+	@Override
+	protected STGroup loadTemplates() {
+		STGroup result = targetTemplates.get();
+		if (result == null) {
+			result = super.loadTemplates();
+			result.registerRenderer(String.class, new JavaStringRenderer(), true);
+			targetTemplates.set(result);
+		}
+
+		return result;
+	}
+
+	protected static class JavaStringRenderer extends StringRenderer {
+
+		@Override
+		public String toString(Object o, String formatString, Locale locale) {
+			if ("java-escape".equals(formatString)) {
+				// 5C is the hex code for the \ itself
+				return ((String)o).replace("\\u", "\\u005Cu");
+			}
+
+			return super.toString(o, formatString, locale);
+		}
+
+	}
+
+	@Override
+	protected void appendUnicodeEscapedCodePoint(int codePoint, StringBuilder sb) {
+		UnicodeEscapes.appendJavaStyleEscapedCodePoint(codePoint, sb);
 	}
 }

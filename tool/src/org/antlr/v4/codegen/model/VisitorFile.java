@@ -12,7 +12,11 @@ import org.antlr.v4.tool.Rule;
 import org.antlr.v4.tool.ast.ActionAST;
 import org.antlr.v4.tool.ast.AltAST;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class VisitorFile extends OutputFile {
 	public String genPackage; // from -package cmd-line
@@ -37,7 +41,7 @@ public class VisitorFile extends OutputFile {
 	public VisitorFile(OutputModelFactory factory, String fileName) {
 		super(factory, fileName);
 		Grammar g = factory.getGrammar();
-		namedActions = buildNamedActions(g, ast -> ast.getScope()==null);
+		namedActions = buildNamedActions(g);
 		parserName = g.getRecognizerName();
 		grammarName = g.name;
 		for (Rule r : g.rules.values()) {
@@ -54,8 +58,7 @@ public class VisitorFile extends OutputFile {
 			}
 		}
 		ActionAST ast = g.namedActions.get("header");
-		if ( ast!=null && ast.getScope()==null)
-			header = new Action(factory, ast);
+		if ( ast!=null ) header = new Action(factory, ast);
 		genPackage = g.tool.genPackage;
 		accessLevel = g.getOptionString("accessLevel");
 		exportMacro = g.getOptionString("exportMacro");

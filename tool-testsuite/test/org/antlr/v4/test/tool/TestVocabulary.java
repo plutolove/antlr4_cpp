@@ -8,20 +8,26 @@ package org.antlr.v4.test.tool;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.Vocabulary;
 import org.antlr.v4.runtime.VocabularyImpl;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
  * @author Sam Harwell
  */
-public class TestVocabulary {
+public class TestVocabulary extends BaseJavaToolTest {
+	@Before
+	@Override
+	public void testSetUp() throws Exception {
+		super.testSetUp();
+	}
+
 	@Test
 	public void testEmptyVocabulary() {
-		assertNotNull(VocabularyImpl.EMPTY_VOCABULARY);
-		assertEquals("EOF", VocabularyImpl.EMPTY_VOCABULARY.getSymbolicName(Token.EOF));
-		assertEquals("0", VocabularyImpl.EMPTY_VOCABULARY.getDisplayName(Token.INVALID_TYPE));
+		Assert.assertNotNull(VocabularyImpl.EMPTY_VOCABULARY);
+		Assert.assertEquals("EOF", VocabularyImpl.EMPTY_VOCABULARY.getSymbolicName(Token.EOF));
+		Assert.assertEquals("0", VocabularyImpl.EMPTY_VOCABULARY.getDisplayName(Token.INVALID_TYPE));
 	}
 
 	@Test
@@ -32,23 +38,24 @@ public class TestVocabulary {
 		};
 
 		Vocabulary vocabulary = VocabularyImpl.fromTokenNames(tokenNames);
-		assertNotNull(vocabulary);
-		assertEquals("EOF", vocabulary.getSymbolicName(Token.EOF));
+		Assert.assertNotNull(vocabulary);
+		Assert.assertEquals("EOF", vocabulary.getSymbolicName(Token.EOF));
 		for (int i = 0; i < tokenNames.length; i++) {
-			assertEquals(tokenNames[i], vocabulary.getDisplayName(i));
+			Assert.assertEquals(tokenNames[i], vocabulary.getDisplayName(i));
 
 			if (tokenNames[i].startsWith("'")) {
-				assertEquals(tokenNames[i], vocabulary.getLiteralName(i));
-				assertNull(vocabulary.getSymbolicName(i));
+				Assert.assertEquals(tokenNames[i], vocabulary.getLiteralName(i));
+				Assert.assertNull(vocabulary.getSymbolicName(i));
 			}
 			else if (Character.isUpperCase(tokenNames[i].charAt(0))) {
-				assertNull(vocabulary.getLiteralName(i));
-				assertEquals(tokenNames[i], vocabulary.getSymbolicName(i));
+				Assert.assertNull(vocabulary.getLiteralName(i));
+				Assert.assertEquals(tokenNames[i], vocabulary.getSymbolicName(i));
 			}
 			else {
-				assertNull(vocabulary.getLiteralName(i));
-				assertNull(vocabulary.getSymbolicName(i));
+				Assert.assertNull(vocabulary.getLiteralName(i));
+				Assert.assertNull(vocabulary.getSymbolicName(i));
 			}
 		}
 	}
+
 }

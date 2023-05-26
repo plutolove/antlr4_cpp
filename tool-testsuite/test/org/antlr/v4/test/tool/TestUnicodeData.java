@@ -5,13 +5,24 @@
  */
 
 package org.antlr.v4.test.tool;
+
+import java.util.Map;
+
 import org.antlr.v4.unicode.UnicodeData;
+import org.antlr.v4.runtime.misc.IntervalSet;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestUnicodeData {
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
 	@Test
 	public void testUnicodeGeneralCategoriesLatin() {
 		assertTrue(UnicodeData.getPropertyCodePoints("Lu").contains('X'));
@@ -130,52 +141,53 @@ public class TestUnicodeData {
 	@Test
 	public void testEnumeratedPropertyEquals() {
 		assertFalse(
-				UnicodeData.getPropertyCodePoints("Grapheme_Cluster_Break=E_Base").contains(0x1F47E),
-				"U+1F47E ALIEN MONSTER is not an emoji modifier");
+				"U+1F47E ALIEN MONSTER is not an emoji modifier",
+				UnicodeData.getPropertyCodePoints("Grapheme_Cluster_Break=E_Base").contains(0x1F47E));
 
 		assertFalse(
-				UnicodeData.getPropertyCodePoints("Grapheme_Cluster_Break=E_Base").contains(0x1038),
-				"U+1038 MYANMAR SIGN VISARGA is not a spacing mark");
+				"U+1038 MYANMAR SIGN VISARGA is not a spacing mark",
+				UnicodeData.getPropertyCodePoints("Grapheme_Cluster_Break=E_Base").contains(0x1038));
 
 		assertTrue(
-				UnicodeData.getPropertyCodePoints("East_Asian_Width=Ambiguous").contains(0x00A1),
-				"U+00A1 INVERTED EXCLAMATION MARK has ambiguous East Asian Width");
+				"U+00A1 INVERTED EXCLAMATION MARK has ambiguous East Asian Width",
+				UnicodeData.getPropertyCodePoints("East_Asian_Width=Ambiguous").contains(0x00A1));
 
 		assertFalse(
-				UnicodeData.getPropertyCodePoints("East_Asian_Width=Ambiguous").contains(0x00A2),
-				"U+00A2 CENT SIGN does not have ambiguous East Asian Width");
+				"U+00A2 CENT SIGN does not have ambiguous East Asian Width",
+				UnicodeData.getPropertyCodePoints("East_Asian_Width=Ambiguous").contains(0x00A2));
+
 	}
 
         @Test
         public void extendedPictographic() {
 		assertTrue(
-				UnicodeData.getPropertyCodePoints("Extended_Pictographic").contains(0x1F588),
-				"U+1F588 BLACK PUSHPIN is in Extended Pictographic");
+				"U+1F588 BLACK PUSHPIN is in Extended Pictographic",
+				UnicodeData.getPropertyCodePoints("Extended_Pictographic").contains(0x1F588));
 		assertFalse(
-				UnicodeData.getPropertyCodePoints("Extended_Pictographic").contains('0'),
-				"0 is not in Extended Pictographic");
+				"0 is not in Extended Pictographic",
+				UnicodeData.getPropertyCodePoints("Extended_Pictographic").contains('0'));
         }
 
         @Test
         public void emojiPresentation() {
 		assertTrue(
-				UnicodeData.getPropertyCodePoints("EmojiPresentation=EmojiDefault").contains(0x1F4A9),
-				"U+1F4A9 PILE OF POO is in EmojiPresentation=EmojiDefault");
+				"U+1F4A9 PILE OF POO is in EmojiPresentation=EmojiDefault",
+				UnicodeData.getPropertyCodePoints("EmojiPresentation=EmojiDefault").contains(0x1F4A9));
 		assertFalse(
-				UnicodeData.getPropertyCodePoints("EmojiPresentation=EmojiDefault").contains('0'),
-				"0 is not in EmojiPresentation=EmojiDefault");
+				"0 is not in EmojiPresentation=EmojiDefault",
+				UnicodeData.getPropertyCodePoints("EmojiPresentation=EmojiDefault").contains('0'));
 		assertFalse(
-				UnicodeData.getPropertyCodePoints("EmojiPresentation=EmojiDefault").contains('A'),
-				"A is not in EmojiPresentation=EmojiDefault");
+				"A is not in EmojiPresentation=EmojiDefault",
+				UnicodeData.getPropertyCodePoints("EmojiPresentation=EmojiDefault").contains('A'));
 		assertFalse(
-				UnicodeData.getPropertyCodePoints("EmojiPresentation=TextDefault").contains(0x1F4A9),
-				"U+1F4A9 PILE OF POO is not in EmojiPresentation=TextDefault");
+				"U+1F4A9 PILE OF POO is not in EmojiPresentation=TextDefault",
+				UnicodeData.getPropertyCodePoints("EmojiPresentation=TextDefault").contains(0x1F4A9));
 		assertTrue(
-				UnicodeData.getPropertyCodePoints("EmojiPresentation=TextDefault").contains('0'),
-				"0 is in EmojiPresentation=TextDefault");
+				"0 is in EmojiPresentation=TextDefault",
+				UnicodeData.getPropertyCodePoints("EmojiPresentation=TextDefault").contains('0'));
 		assertFalse(
-				UnicodeData.getPropertyCodePoints("EmojiPresentation=TextDefault").contains('A'),
-				"A is not in EmojiPresentation=TextDefault");
+				"A is not in EmojiPresentation=TextDefault",
+				UnicodeData.getPropertyCodePoints("EmojiPresentation=TextDefault").contains('A'));
         }
 
 	@Test
@@ -193,7 +205,8 @@ public class TestUnicodeData {
 
 	@Test
 	public void modifyingUnicodeDataShouldThrow() {
-		IllegalStateException exception = assertThrows(IllegalStateException.class, () -> UnicodeData.getPropertyCodePoints("L").add(0x12345));
-		assertEquals("can't alter readonly IntervalSet", exception.getMessage());
+		thrown.expect(IllegalStateException.class);
+		thrown.expectMessage("can't alter readonly IntervalSet");
+		UnicodeData.getPropertyCodePoints("L").add(0x12345);
 	}
 }

@@ -7,13 +7,18 @@
 package org.antlr.v4.test.tool;
 
 import org.antlr.v4.tool.ErrorType;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.stringtemplate.v4.ST;
 
-import static org.antlr.v4.test.tool.ToolTestUtils.testErrors;
+public class TestBasicSemanticErrors extends BaseJavaToolTest {
+	@Before
+	@Override
+	public void testSetUp() throws Exception {
+		super.testSetUp();
+	}
 
-public class TestBasicSemanticErrors {
-    final static String[] U = {
+    static String[] U = {
         // INPUT
         "parser grammar U;\n" +
         "options { foo=bar; k=3;}\n" +
@@ -45,7 +50,7 @@ public class TestBasicSemanticErrors {
 		"warning(" + ErrorType.ILLEGAL_OPTION.code + "): U.g4:16:16: unsupported option x\n",
     };
 
-	@Test public void testU() { testErrors(U, false); }
+	@Test public void testU() { super.testErrors(U, false); }
 
 	/**
 	 * Regression test for #25 "Don't allow labels on not token set subrules".

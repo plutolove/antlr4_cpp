@@ -6,28 +6,24 @@
 
 package org.antlr.v4.test.tool;
 
+import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.xpath.XPath;
-import org.antlr.v4.test.runtime.RunOptions;
-import org.antlr.v4.test.runtime.Stage;
-import org.antlr.v4.test.runtime.java.JavaRunner;
-import org.antlr.v4.test.runtime.states.JavaCompiledState;
-import org.antlr.v4.test.runtime.states.JavaExecutedState;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import static org.antlr.v4.test.tool.ToolTestUtils.createOptionsForJavaToolTests;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-public class TestXPath {
+public class TestXPath extends BaseJavaToolTest {
 	public static final String grammar =
 		"grammar Expr;\n" +
 		"prog:   func+ ;\n" +
@@ -62,7 +58,18 @@ public class TestXPath {
 			"def f(x,y) { x = 3+4; y; ; }\n" +
 			"def g(x) { return 1+2*x; }\n";
 
+	@Before
+	@Override
+	public void testSetUp() throws Exception {
+		super.testSetUp();
+	}
+
 	@Test public void testValidPaths() throws Exception {
+		boolean ok =
+			rawGenerateAndBuildRecognizer("Expr.g4", grammar, "ExprParser",
+										  "ExprLexer", false);
+		assertTrue(ok);
+
 		String xpath[] = {
 			"/prog/func",		// all funcs under prog at root
 			"/prog/*",			// all children of prog at root
@@ -111,61 +118,96 @@ public class TestXPath {
 		};
 
 		for (int i=0; i<xpath.length; i++) {
-			List<String> nodes = getNodeStrings("Expr.g4", grammar, SAMPLE_PROGRAM, xpath[i], "prog", "ExprParser", "ExprLexer");
+			List<String> nodes = getNodeStrings(SAMPLE_PROGRAM, xpath[i], "prog", "ExprParser", "ExprLexer");
 			String result = nodes.toString();
-			assertEquals(expected[i], result, "path "+xpath[i]+" failed");
+			assertEquals("path "+xpath[i]+" failed", expected[i], result);
 		}
 	}
 
 	@Test public void testWeirdChar() throws Exception {
+		boolean ok =
+			rawGenerateAndBuildRecognizer("Expr.g4", grammar, "ExprParser",
+										  "ExprLexer", false);
+		assertTrue(ok);
+
 		String path = "&";
 		String expected = "Invalid tokens or characters at index 0 in path '&'";
 
-		testError("Expr.g4", grammar, SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
+		testError(SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
 	}
 
 	@Test public void testWeirdChar2() throws Exception {
+		boolean ok =
+			rawGenerateAndBuildRecognizer("Expr.g4", grammar, "ExprParser",
+										  "ExprLexer", false);
+		assertTrue(ok);
+
 		String path = "//w&e/";
 		String expected = "Invalid tokens or characters at index 3 in path '//w&e/'";
 
-		testError("Expr.g4", grammar, SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
+		testError(SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
 	}
 
 	@Test public void testBadSyntax() throws Exception {
+		boolean ok =
+			rawGenerateAndBuildRecognizer("Expr.g4", grammar, "ExprParser",
+										  "ExprLexer", false);
+		assertTrue(ok);
+
 		String path = "///";
 		String expected = "/ at index 2 isn't a valid rule name";
 
-		testError("Expr.g4", grammar, SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
+		testError(SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
 	}
 
 	@Test public void testMissingWordAtEnd() throws Exception {
+		boolean ok =
+			rawGenerateAndBuildRecognizer("Expr.g4", grammar, "ExprParser",
+										  "ExprLexer", false);
+		assertTrue(ok);
+
 		String path = "//";
 		String expected = "Missing path element at end of path";
 
-		testError("Expr.g4", grammar, SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
+		testError(SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
 	}
 
 	@Test public void testBadTokenName() throws Exception {
+		boolean ok =
+			rawGenerateAndBuildRecognizer("Expr.g4", grammar, "ExprParser",
+										  "ExprLexer", false);
+		assertTrue(ok);
+
 		String path = "//Ick";
 		String expected = "Ick at index 2 isn't a valid token name";
 
-		testError("Expr.g4", grammar, SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
+		testError(SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
 	}
 
 	@Test public void testBadRuleName() throws Exception {
+		boolean ok =
+			rawGenerateAndBuildRecognizer("Expr.g4", grammar, "ExprParser",
+										  "ExprLexer", false);
+		assertTrue(ok);
+
 		String path = "/prog/ick";
 		String expected = "ick at index 6 isn't a valid rule name";
 
-		testError("Expr.g4", grammar, SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
+		testError(SAMPLE_PROGRAM, path, expected, "prog", "ExprParser", "ExprLexer");
 	}
 
-	private void testError(String grammarFileName, String grammar, String input, String xpath, String expected,
-							 String startRuleName, String parserName, String lexerName)
+	protected void testError(String input, String path, String expected,
+							 String startRuleName,
+							 String parserName, String lexerName)
 		throws Exception
 	{
+		Pair<Parser, Lexer> pl = getParserAndLexer(input, parserName, lexerName);
+		Parser parser = pl.a;
+		ParseTree tree = execStartRule(startRuleName, parser);
+
 		IllegalArgumentException e = null;
 		try {
-			compileAndExtract(grammarFileName, grammar, input, xpath, startRuleName, parserName, lexerName);
+			XPath.findAll(tree, path, parser);
 		}
 		catch (IllegalArgumentException iae) {
 			e = iae;
@@ -174,18 +216,20 @@ public class TestXPath {
 		assertEquals(expected, e.getMessage());
 	}
 
-	private List<String> getNodeStrings(String grammarFileName, String grammar, String input, String xpath,
-									   String startRuleName, String parserName, String lexerName)
+	public List<String> getNodeStrings(String input, String xpath,
+									   String startRuleName,
+									   String parserName, String lexerName)
 		throws Exception
 	{
-		Pair<String[], Collection<ParseTree>> result = compileAndExtract(
-				grammarFileName, grammar, input, xpath, startRuleName, parserName, lexerName);
+		Pair<Parser, Lexer> pl = getParserAndLexer(input, parserName, lexerName);
+		Parser parser = pl.a;
+		ParseTree tree = execStartRule(startRuleName, parser);
 
-		List<String> nodes = new ArrayList<>();
-		for (ParseTree t : result.b) {
+		List<String> nodes = new ArrayList<String>();
+		for (ParseTree t : XPath.findAll(tree, xpath, parser) ) {
 			if ( t instanceof RuleContext) {
 				RuleContext r = (RuleContext)t;
-				nodes.add(result.a[r.getRuleIndex()]);
+				nodes.add(parser.getRuleNames()[r.getRuleIndex()]);
 			}
 			else {
 				TerminalNode token = (TerminalNode)t;
@@ -193,22 +237,5 @@ public class TestXPath {
 			}
 		}
 		return nodes;
-	}
-
-	private Pair<String[], Collection<ParseTree>> compileAndExtract(String grammarFileName, String grammar,
-																	String input, String xpath, String startRuleName,
-																	String parserName, String lexerName
-	) throws Exception {
-		RunOptions runOptions = createOptionsForJavaToolTests(grammarFileName, grammar, parserName, lexerName,
-				false, false, startRuleName, input,
-				false, false, Stage.Execute, true);
-		try (JavaRunner runner = new JavaRunner()) {
-			JavaExecutedState executedState = (JavaExecutedState)runner.run(runOptions);
-			JavaCompiledState compiledState = (JavaCompiledState)executedState.previousState;
-			Parser parser = compiledState.initializeLexerAndParser(input).b;
-			Collection<ParseTree> found = XPath.findAll(executedState.parseTree, xpath, parser);
-
-			return new Pair<>(parser.getRuleNames(), found);
-		}
 	}
 }

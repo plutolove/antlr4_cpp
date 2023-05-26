@@ -13,12 +13,19 @@ import org.antlr.v4.runtime.ParserInterpreter;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.tool.Grammar;
 import org.antlr.v4.tool.LexerGrammar;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 
-public class TestParserInterpreter {
+public class TestParserInterpreter extends BaseJavaToolTest {
+	@Before
+	@Override
+	public void testSetUp() throws Exception {
+		super.testSetUp();
+	}
+
 	@Test public void testEmptyStartRule() throws Exception {
 		LexerGrammar lg = new LexerGrammar(
 			"lexer grammar L;\n" +
@@ -321,30 +328,6 @@ public class TestParserInterpreter {
 		testInterp(lg, g, "e", "a+a+a", "(e (e (e a) + (e a)) + (e a))");
 		testInterp(lg, g, "e", "a*a+a", "(e (e (e a) * (e a)) + (e a))");
 		testInterp(lg, g, "e", "a+a*a", "(e (e a) + (e (e a) * (e a)))");
-	}
-
-	@Test public void testCaseInsensitiveTokensInParser() throws Exception {
-		LexerGrammar lg = new LexerGrammar(
-				"lexer grammar L;\n" +
-				"options { caseInsensitive = true; }\n" +
-				"NOT: 'not';\n" +
-				"AND: 'and';\n" +
-				"NEW: 'new';\n" +
-				"LB:  '(';\n" +
-				"RB:  ')';\n" +
-				"ID: [a-z_][a-z_0-9]*;\n" +
-				"WS: [ \\t\\n\\r]+ -> skip;");
-		Grammar g = new Grammar(
-				"parser grammar T;\n" +
-				"options { caseInsensitive = true; }\n" +
-				"e\n" +
-				"    : ID\n" +
-				"    | 'not' e\n" +
-				"    | e 'and' e\n" +
-				"    | 'new' ID '(' e ')'\n" +
-				"    ;", lg);
-
-		testInterp(lg, g, "e", "NEW Abc (Not a AND not B)", "(e NEW Abc ( (e (e Not (e a)) AND (e not (e B))) ))");
 	}
 
 	ParseTree testInterp(LexerGrammar lg, Grammar g,

@@ -6,14 +6,21 @@
 package org.antlr.v4.test.tool;
 
 import org.antlr.v4.misc.Graph;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /** Test topo sort in GraphNode. */
-public class TestTopologicalSort {
+public class TestTopologicalSort extends BaseJavaToolTest {
+	@Before
+	@Override
+	public void testSetUp() throws Exception {
+		super.testSetUp();
+	}
+
     @Test
     public void testFairlyLargeGraph() throws Exception {
         Graph<String> g = new Graph<String>();

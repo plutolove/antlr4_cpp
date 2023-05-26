@@ -14,19 +14,25 @@ import org.antlr.v4.runtime.TokenSource;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.UnbufferedTokenStream;
 import org.antlr.v4.tool.LexerGrammar;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("unused")
-public class TestUnbufferedTokenStream {
-	@Test
-	public void testLookahead() throws Exception {
+public class TestUnbufferedTokenStream extends BaseJavaToolTest {
+	@Before
+	@Override
+	public void testSetUp() throws Exception {
+		super.testSetUp();
+	}
+
+	@Test public void testLookahead() throws Exception {
         LexerGrammar g = new LexerGrammar(
             "lexer grammar t;\n"+
             "ID : 'a'..'z'+;\n" +

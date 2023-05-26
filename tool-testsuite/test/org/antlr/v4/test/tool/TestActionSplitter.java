@@ -10,15 +10,22 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.antlr.v4.parse.ActionSplitter;
 import org.antlr.v4.semantics.BlankActionSplitterListener;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
-public class TestActionSplitter {
-    final static String[] exprs = {
+public class TestActionSplitter extends BaseJavaToolTest {
+	@Before
+	@Override
+	public void testSetUp() throws Exception {
+		super.testSetUp();
+	}
+
+    static String[] exprs = {
         "foo",		"['foo'<" + ActionSplitter.TEXT + ">]",
         "$x",		"['$x'<" + ActionSplitter.ATTR + ">]",
         "\\$x",		"['\\$x'<" + ActionSplitter.TEXT + ">]",
@@ -35,17 +42,16 @@ public class TestActionSplitter {
         "$foo.get(\"ick\");",		"['$foo'<" + ActionSplitter.ATTR + ">, '.get(\"ick\");'<" + ActionSplitter.TEXT + ">]",
     };
 
-    @Test
-	public void testExprs() {
-		for (int i = 0; i < exprs.length; i += 2) {
-			String input = exprs[i];
-			String expect = exprs[i + 1];
-			List<String> chunks = getActionChunks(input);
-			assertEquals(expect, chunks.toString(), "input: " + input);
-		}
-	}
+    @Test public void testExprs() {
+        for (int i = 0; i < exprs.length; i+=2) {
+            String input = exprs[i];
+            String expect = exprs[i+1];
+            List<String> chunks = getActionChunks(input);
+            assertEquals("input: "+input, expect, chunks.toString());
+        }
+    }
 
-	private static List<String> getActionChunks(String a) {
+    public static List<String> getActionChunks(String a) {
         List<String> chunks = new ArrayList<String>();
         ActionSplitter splitter = new ActionSplitter(new ANTLRStringStream(a),
 													 new BlankActionSplitterListener());

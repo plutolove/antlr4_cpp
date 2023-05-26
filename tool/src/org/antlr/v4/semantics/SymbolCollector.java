@@ -63,7 +63,6 @@ public class SymbolCollector extends GrammarTreeVisitor {
 
 	@Override
 	public void globalNamedAction(GrammarAST scope, GrammarAST ID, ActionAST action) {
-		action.setScope(scope);
 		namedActions.add((GrammarAST)ID.getParent());
 		action.resolver = g;
 	}
@@ -92,7 +91,7 @@ public class SymbolCollector extends GrammarTreeVisitor {
 	}
 
 	@Override
-	public void discoverLexerRule(RuleAST rule, GrammarAST ID, List<GrammarAST> modifiers, GrammarAST options,
+	public void discoverLexerRule(RuleAST rule, GrammarAST ID, List<GrammarAST> modifiers,
 								  GrammarAST block)
 	{
 		currentRule = g.getRule(ID.getText());

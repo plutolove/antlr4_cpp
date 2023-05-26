@@ -9,17 +9,21 @@ package org.antlr.v4.test.tool;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.tool.Grammar;
 import org.antlr.v4.tool.LexerGrammar;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-public class TestTokenTypeAssignment {
-	@Test public void testParserSimpleTokens() throws Exception {
+public class TestTokenTypeAssignment extends BaseJavaToolTest {
+
+	@Test
+		public void testParserSimpleTokens() throws Exception {
 		Grammar g = new Grammar(
 				"parser grammar t;\n"+
 				"a : A | B;\n" +
@@ -178,12 +182,14 @@ public class TestTokenTypeAssignment {
 		StringTokenizer st = new StringTokenizer(allValidTokensStr, ", ");
 		while ( st.hasMoreTokens() ) {
 			String tokenName = st.nextToken();
-			assertTrue(g.getTokenType(tokenName) != Token.INVALID_TYPE, "token "+tokenName+" expected, but was undefined");
+			assertTrue("token "+tokenName+" expected, but was undefined",
+					   g.getTokenType(tokenName) != Token.INVALID_TYPE);
 			tokens.remove(tokenName);
 		}
 		// make sure there are not any others (other than <EOF> etc...)
 		for (String tokenName : tokens) {
-			assertTrue(g.getTokenType(tokenName) < Token.MIN_USER_TOKEN_TYPE, "unexpected token name "+tokenName);
+			assertTrue("unexpected token name "+tokenName,
+					   g.getTokenType(tokenName) < Token.MIN_USER_TOKEN_TYPE);
 		}
 
 		// make sure all expected rules are there
@@ -191,11 +197,14 @@ public class TestTokenTypeAssignment {
 		int n = 0;
 		while ( st.hasMoreTokens() ) {
 			String ruleName = st.nextToken();
-			assertNotNull(g.getRule(ruleName), "rule "+ruleName+" expected");
+			assertNotNull("rule "+ruleName+" expected", g.getRule(ruleName));
 			n++;
 		}
 		//System.out.println("rules="+rules);
 		// make sure there are no extra rules
-		assertEquals(n, g.rules.size(), "number of rules mismatch; expecting "+n+"; found "+g.rules.size());
+		assertEquals("number of rules mismatch; expecting "+n+"; found "+g.rules.size(),
+					 n, g.rules.size());
+
 	}
+
 }

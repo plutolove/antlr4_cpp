@@ -12,7 +12,11 @@ import org.antlr.v4.tool.Rule;
 import org.antlr.v4.tool.ast.ActionAST;
 import org.antlr.v4.tool.ast.AltAST;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /** A model object representing a parse tree listener file.
  *  These are the rules specific events triggered by a parse tree visitor.
@@ -42,7 +46,7 @@ public class ListenerFile extends OutputFile {
 		Grammar g = factory.getGrammar();
 		parserName = g.getRecognizerName();
 		grammarName = g.name;
-		namedActions = buildNamedActions(factory.getGrammar(), ast -> ast.getScope() == null);
+		namedActions = buildNamedActions(factory.getGrammar());
 		for (Rule r : g.rules.values()) {
 			Map<String, List<Pair<Integer,AltAST>>> labels = r.getAltLabels();
 			if ( labels!=null ) {
@@ -57,9 +61,7 @@ public class ListenerFile extends OutputFile {
 			}
 		}
 		ActionAST ast = g.namedActions.get("header");
-		if ( ast!=null && ast.getScope()==null ) {
-			header = new Action(factory, ast);
-		}
+		if ( ast!=null ) header = new Action(factory, ast);
 		genPackage = g.tool.genPackage;
 		accessLevel = g.getOptionString("accessLevel");
 		exportMacro = g.getOptionString("exportMacro");
